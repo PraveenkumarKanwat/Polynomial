@@ -22,8 +22,59 @@ class Polynomial:
         """:returns the degree of the polynomial"""
         return len(self.coefficients) - 1
 
+    def __add__(self, other):
+        """
+        :param other: the other polynomial provided
+        :return: the addition of two polynomial self and other
+        """
+        big, small = (self.coefficients, other.coefficients) if len(self.coefficients) >= len(other.coefficients) \
+            else (other.coefficients, self.coefficients)
+        big = list(big)
+        diff = len(big) - len(small)
+        for i in range(len(small)):
+            big[i + diff] += small[i]
+        return Polynomial(big)
+
+    def __sub__(self, other):
+        """
+        :param other: the other polynomial provided
+        :return: the subtraction of two polynomial self and other
+        """
+        return self.__add__(-other)
+
+    def __mul__(self, other):
+        new_coeff = [0] * (len(self.coefficients) + len(other.coefficients) - 1)
+        for i in range(len(self.coefficients)):
+            for j in range(len(other.coefficients)):
+                new_coeff[i+j] += self.coefficients[i] * other.coefficients[j]
+        return Polynomial(new_coeff)
+
+    def __eq__(self, other):
+        return self.coefficients == other.coefficients
+
+    def __neg__(self):
+        new_coeff = [-x for x in self.coefficients]
+        return Polynomial(new_coeff)
+
+    def __pow__(self, power, modulo=None):
+        result = Polynomial([1])
+        for i in range(power):
+            result = result.__mul__(self)
+        return result
+
     def __call__(self, *args, **kwargs):
-        print(args, kwargs)
+        """calculates the value of function at a given value(s) of x"""
+        result = []
+        if len(args) == 0:
+            raise TypeError("takes one or more arguments (0 given)")
+        for arg in args:
+            value = 0
+            for coefficient in self.coefficients:
+                value = value * arg + coefficient
+            result.append(value)
+        if len(args) == 1:
+            return result[0]
+        return tuple(result)
 
     def refresh_coefficients(self):
         """Updates coefficients after any operations that affects the coefficient."""
@@ -47,7 +98,8 @@ class Polynomial:
     def integrate(self, constant=0, inplace=False):
         """
         Calculates the integration of the polynomial.
-        :param inplace: boolean: weather to replace the current polynomial with its integral
+        :param constant: the constant of integration default assumed to be 0.
+        :param inplace: boolean: weather to replace the current polynomial with its integral.
         :return: new polynomial with after integration.
         """
         degree = len(self.coefficients) + 1
@@ -59,9 +111,23 @@ class Polynomial:
             self.coefficients = new_coeff
         return Polynomial(new_coeff)
 
+    def definite_integral(self, x1, x2):
+        """:returns definite ingration of the polynomial from x1 to x2 """
+        value_x1, value_x2 = self.integrate()(x1, x2)
+        return value_x2 - value_x1
+
 
 if __name__ == '__main__':
     p = Polynomial([4,0,0,1])
-    p(4,{"2":1})
-    print(p.differentiate())
-    print(p.integrate())
+    p2 = Polynomial([1,-1])
+    p3 = Polynomial([1,-1])
+    print(p, p2, p-p2)
+    print(p2**4)
+    # print(p)
+    # print(p2)
+    print(p-p2)
+    # print(p2)
+    # print(-p)
+    # print(p)
+    # # print(p.definite_integral(2,3))
+    # print(p.integrate(constant=4))
