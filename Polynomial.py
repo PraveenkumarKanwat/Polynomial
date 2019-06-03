@@ -1,4 +1,5 @@
 import poly_string as ps
+import ploting_graph as pg
 
 
 class Polynomial:
@@ -43,6 +44,10 @@ class Polynomial:
         return self.__add__(-other)
 
     def __mul__(self, other):
+        """
+       :param other: the other polynomial provided
+       :return: the multiplication of two polynomial self and other
+       """
         new_coeff = [0] * (len(self.coefficients) + len(other.coefficients) - 1)
         for i in range(len(self.coefficients)):
             for j in range(len(other.coefficients)):
@@ -50,13 +55,19 @@ class Polynomial:
         return Polynomial(new_coeff)
 
     def __eq__(self, other):
+        """
+       :param other: the other polynomial provided
+       :return: the equality of two polynomial self and other
+       """
         return self.coefficients == other.coefficients
 
     def __neg__(self):
+        """:returns the negative of the polynomial"""
         new_coeff = [-x for x in self.coefficients]
         return Polynomial(new_coeff)
 
     def __pow__(self, power, modulo=None):
+        """:returns the polynomial raised to :param power:"""
         result = Polynomial([1])
         for i in range(power):
             result = result.__mul__(self)
@@ -116,16 +127,38 @@ class Polynomial:
         value_x1, value_x2 = self.integrate()(x1, x2)
         return value_x2 - value_x1
 
+    def plot_polynomial(self, x1, x2, steps=0.1):
+        if x2 < x1:
+            raise ValueError("x2 should be greater than x1")
+        x = [x1]
+        while x1 < x2:
+            x1 += steps
+            x.append(x1)
+        y = [self(i) for i in x]
+        pg.plot_graph(x, y, self.__str__())
+
+    @staticmethod
+    def polynomial_with_roots(*args):
+        if len(args) == 0:
+            raise TypeError("takes one or more arguments (0 given)")
+        p = Polynomial([1])
+        for i in args:
+            p *= Polynomial([1, -i])
+        return p
+
 
 if __name__ == '__main__':
-    p = Polynomial([4,0,0,1])
-    p2 = Polynomial([1,-1])
-    p3 = Polynomial([1,-1])
-    print(p, p2, p-p2)
-    print(p2**4)
+    # p = Polynomial([4,0,0,1])
+    p2 = Polynomial([1,1,-1])
+    p3 = Polynomial.polynomial_with_roots(-5, 0, 5)
+    p3.plot_polynomial(-10, 10,steps=0.01)
+    # print(p, p2, p-p2)
+    print(p2)
+    print(repr(p2))
     # print(p)
     # print(p2)
-    print(p-p2)
+    # print(p-p2)
+    # print()
     # print(p2)
     # print(-p)
     # print(p)
